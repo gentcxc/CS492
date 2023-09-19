@@ -17,8 +17,7 @@ int main()
     return 0;
 }
 int substitute(int a)
-{    return ((a ^ 5) <<< 1); } 
+{    return ((a ^ 5) << 1); } 
 void printbits(unsigned char v) 
-{
-    for(int i = 7; i >= 0; i--) putchar('0' + ((v >> i) & 1));
-}
+{    for(int i = 7; i >= 0; i--) putchar('0' + ((v >> i) & 1));}
+
