@@ -1,16 +1,20 @@
 #include<stdio.h>
 int substitute(int);
+void printbits(unsigned char);
 int main()
-{
-    for(int i =0; i<16;i++)
-    {
-        printf("Pre Encryption: ");
-        printf("%d , ",i);
-        printf("Post Encryption:  ");
-        printf("%d , ",substitute(i));
-        printf("\n");
-    }
+{ 
+    int a=0;
+    scanf("%d", &a);
+    printf("Pre: %d  Post: %d\n",a, substitute(a));
     return 0;
 }
 int substitute(int a)
-{    return ((a ^ 5) << 1); } 
+{ 
+    int i;
+    for(i=0; i < 15; i++)
+        if(a==i) 
+            return ++a;
+       
+    if(a==15)
+        return 0;
+} 
