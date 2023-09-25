@@ -8,18 +8,20 @@ int cbcEncrypt(int, int);
 void printbits(unsigned char);
 int main()
 { 
-    int a;
-    scanf("%d", &a);
-    printf("Pre: %d  Post: %d\n",a, substitute(a));
-    printf("\n%d\n", ecbEncrypt(a));
-    printf("\n%d\n", ctrEncrypt(34952, a));
+    int a=32123, b=409487629;
+    printf("Plaintext: (16bit) a = 0x%x , (32 bit) b = 0x%x \n",a,b);
+    printf("ECB Encryption: a = 0x%x , b = 0x%x \n", ecbEncrypt(a), ecbEncrypt(b));
+    int ctra = ctrEncrypt(34952, a), ctrb = ctrEncrypt(34952, b);
+    printf("CTR Encryption: IV: 0x%x, a = 0x%x, b = 0x%x \n", 34952,ctra,ctrb);
+    int cbca= cbcEncrypt(14,a),cbcb=cbcEncrypt(14,b);
+    printf("CBC Encryption: IV: 0x%x  , a = 0x%x, b = 0x%x \n",14, cbca,cbcb);
     return 0;
 }
 uint8_t substitute(uint8_t a)
 { 
     if( a > 15)
     {
-        printf("Number over 4 bits");
+        printf("Number over 4 bits\n");
         return 0;
     }
     int i;
@@ -75,14 +77,43 @@ int ctrEncrypt(int iv, int x)
 }
 int cbcEncrypt(int iv, int x)
 {
-    int middle;
-    middle = 0x0f & (iv ^ x);    //step 1, take IV to start and xor it with p, 4 rightmost bits
-    
-
-
-}
-void printbits(unsigned char v) 
-{
-    int i;
-    for(i = 7; i >= 0; i--) putchar('0' + ((v >> i) & 1));
+    int final,f1,f2,f3,f4,f5,f6,f7,f8,t1,t2,t3,t4,t5,t6,t7,t8; //f is for field, t is permutation of x
+    if(x<65536)
+    {
+        t1 = 0x0f & x;
+        t2 = 0x0f & x>>4;
+        t3 = 0x0f & x>>8;
+        t4 = 0x0f & x>>12; 
+        f4 = (iv ^t4 );    //step 1, take IV to start and xor it with p, 4 rightmost bits
+        f4 = substitute(f4);
+        f3 = f4 ^ t3;
+        f3= substitute(f3);
+        f2 = f3 ^ t2; 
+        f2 = substitute(f2);
+        f1 = f2 ^ t1;
+        f1 = substitute(f1);
+        return final = f1 | f2<<4 | f3<<8 | f4<<12; 
+    }
+    else if(x<4294967296)
+    {
+        t1 = 0x0f & x;           //match f's and t's, should have been  done prior.
+        t2 = 0x0f & x>>4;
+        t3 = 0x0f & x>>8;
+        t4 = 0x0f & x>>12; 
+        t5 = 0x0f & x>>16;           
+        t6 = 0x0f & x>>20;
+        t7 = 0x0f & x>>24;
+        t8 = 0x0f & x>>28; 
+        
+        f8 = t8 ^ iv;
+        f8 = substitute(f8);
+        f7 = substitute(f8 ^ t7);
+        f6 = substitute(f7 ^ t6);
+        f5 = substitute(f6 ^ t5);
+        f4 = substitute(f5 ^ t4);
+        f3 = substitute(f4 ^ t3);
+        f2 = substitute(f3 ^ t2);
+        f1 = substitute(f2 ^ t1);
+        return f1 | f2 <<4 | f3 << 8 | f4 << 12 | f5 << 16 | f6 << 20 | f7 << 24 | f8 << 28;
+    }
 }
